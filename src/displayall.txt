@@ -1,0 +1,115 @@
+import { useDispatch,useSelector } from "react-redux"
+import { Grid,Button,TextField, DialogContent, DialogActions,Dialog,DialogTitle } from "@mui/material"
+import { useState } from "react"
+import { makeStyles } from "@mui/styles"
+import { UploadFile } from "@mui/icons-material"
+import MaterialTable from "@material-table/core"
+import { useNavigate } from "react-router-dom"
+
+const useStyles = makeStyles({
+    root:{
+        background:"#dfe6e9",
+        width:'100vw',
+        height:'100vh',
+        display:'flex',
+        justifyContent:'center',
+        alignItems:'center'
+    },
+    box:{
+        width:'50%',
+        height:'auto',
+        background:'#fff',
+        padding:20,
+    }
+})
+
+export default function DisplayAll()
+{   
+    const classes = useStyles()
+    const dispatch = useDispatch()
+    const navigate=useNavigate()
+    const [shareId,setShareId]=useState('')
+    const [companyName,setCompanyName]=useState('')
+    const [todayDate,setTodayDate]=useState('')
+    const [open,setOpen]=useState('')
+    const [close,setClose]=useState('')
+    const [companyLogo,setCompanyLogo]=useState({url:'',bytes:''})
+
+    const [openDialog,setOpenDialog]=useState(false)
+
+    const handleDialogClose=()=>{
+        setOpenDialog(false)
+    }
+
+    const showDialog=()=>{
+        return(<div>
+            <Dialog open={openDialog}>
+                <DialogTitle>
+                    Edit share
+                </DialogTitle>
+                <DialogContent>
+
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleDialogClose}>Close</Button>
+                </DialogActions>
+            </Dialog>
+        </div>)
+    }
+
+    const employee=useSelector((state)=>state.shareData)
+    var sh = Object.values(employee)
+    console.log("VALUES",sh)
+
+    const handleDelete=(rowData)=>{
+        dispatch({type:'DEL_SHARE',payload:shareId})
+    }
+
+    const handleEdit=(rowData)=>{
+        setShareId(rowData.shareid)
+        setCompanyName(rowData.companyname)
+        setTodayDate(rowData.todaydate)
+        setOpen(rowData.open)
+        setClose(rowData.close)
+        
+    }
+    
+    const showAllShare=()=>{
+            return (
+              <MaterialTable
+                title="Multiple Actions Preview"
+                columns={[
+                  { title: 'Shareid', field: 'shareid' },
+                  { title: 'Company Name', field: 'companyname' },
+                 
+                ]}
+                data={sh}        
+                actions={[
+                  {
+                    icon: 'edit',
+                    tooltip: 'Edit Share',
+                    onClick: (event, rowData) => handleEdit(rowData)
+                  },
+                  {
+                    icon: 'delete',
+                    tooltip: 'Delete Share',
+                    onClick: (event, rowData) => handleDelete(rowData)
+                  },
+                  {
+                    icon: 'add',
+                    tooltip: 'Add Share',
+                    isFreeAction: true,
+                    onClick: (event, rowData) => navigate('/shareinterface')
+                  }
+                ]}
+              />
+            )
+        }
+
+    return(<div className={classes.root}>
+        <div className={classes.box}>
+            {showAllShare()} 
+            {showDialog()}
+        </div>
+    </div>)
+}
